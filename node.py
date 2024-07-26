@@ -315,7 +315,7 @@ class GroundingDinoSAMSegment:
         res_images = []
         res_masks = []
         
-        for item, point_item in zip(image, points):
+        for item in image:
             item = Image.fromarray(
                 np.clip(255. * item.cpu().numpy(), 0, 255).astype(np.uint8)).convert('RGBA')
             boxes = groundingdino_predict(
@@ -327,12 +327,12 @@ class GroundingDinoSAMSegment:
             if boxes.shape[0] == 0:
                 break
             width, height = item.size
-            if len(point_item) == 0:
+            if len(points) == 0:
                 point_coords = None
                 point_labels = None
             else:
-                point_coords = torch.tensor([[[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in point_item.split(',')]])
-                point_labels = torch.tensor([[1 for _ in point_coords]]) if point_coords is not None else None
+                point_coords = torch.tensor([[[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in points.split(',')]], device="cuda")
+                point_labels = torch.tensor([[1 for _ in point_coords]], device="cuda") if point_coords is not None else None
             (images, masks) = sam_segment(
                 sam_model,
                 item,
