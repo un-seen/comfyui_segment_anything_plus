@@ -263,7 +263,7 @@ class SAMModelLoader:
                 "model_name": (list_sam_model(), ),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "segment_anything_plus"
     FUNCTION = "main"
     RETURN_TYPES = ("SAM_MODEL", )
 
@@ -280,7 +280,7 @@ class GroundingDinoModelLoader:
                 "model_name": (list_groundingdino_model(), ),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "segment_anything_plus"
     FUNCTION = "main"
     RETURN_TYPES = ("GROUNDING_DINO_MODEL", )
 
@@ -307,7 +307,7 @@ class GroundingDinoSAMSegment:
                 }),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "segment_anything_plus"
     FUNCTION = "main"
     RETURN_TYPES = ("IMAGE", "MASK")
 
@@ -354,7 +354,7 @@ class InvertMask:
                 "mask": ("MASK",),
             }
         }
-    CATEGORY = "segment_anything"
+    CATEGORY = "segment_anything_plus"
     FUNCTION = "main"
     RETURN_TYPES = ("MASK",)
 
@@ -374,7 +374,7 @@ class IsMaskEmptyNode:
     RETURN_NAMES = ["boolean_number"]
 
     FUNCTION = "main"
-    CATEGORY = "segment_anything"
+    CATEGORY = "segment_anything_plus"
 
     def main(self, mask):
         return (torch.all(mask == 0).int().item(), )
