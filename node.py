@@ -230,7 +230,8 @@ def sam_segment(
     sam_model,
     image,
     boxes,
-    point_coords: torch.Tensor
+    point_coords: torch.Tensor,
+    point_labels: torch.Tensor
 ):
     if boxes.shape[0] == 0:
         return None
@@ -247,7 +248,7 @@ def sam_segment(
     sam_device = comfy.model_management.get_torch_device()
     masks, _, _ = predictor.predict_torch(
         point_coords=point_coords,
-        point_labels=torch.tensor([1 for _ in point_coords]) if point_coords is not None else None,
+        point_labels=point_labels,
         boxes=transformed_boxes.to(sam_device),
         multimask_output=False)
     masks = masks.permute(1, 0, 2, 3).cpu().numpy()
@@ -328,13 +329,16 @@ class GroundingDinoSAMSegment:
             width, height = item.size
             if len(point_item) == 0:
                 point_coords = None
+                point_labels = None
             else:
-                point_coords = torch.tensor([[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in point_item.split(',')])
+                point_coords = torch.tensor([[[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in point_item.split(',')]])
+                point_labels = torch.tensor([[1 for _ in point_coords]]) if point_coords is not None else None
             (images, masks) = sam_segment(
                 sam_model,
                 item,
                 boxes,
-                point_coords
+                point_coords,
+                point_labels
             )
             res_images.extend(images)
             res_masks.extend(masks)
