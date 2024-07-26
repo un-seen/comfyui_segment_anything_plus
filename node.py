@@ -7,6 +7,7 @@ sys.path.append(
 import copy
 import torch
 import numpy as np
+from typing import List, Tuple
 from PIL import Image
 import logging
 from torch.hub import download_url_to_file
@@ -229,7 +230,8 @@ def split_image_mask(image):
 def sam_segment(
     sam_model,
     image,
-    boxes
+    boxes,
+    point_coords: torch.Tensor
 ):
     if boxes.shape[0] == 0:
         return None
@@ -245,8 +247,8 @@ def sam_segment(
         boxes, image_np.shape[:2])
     sam_device = comfy.model_management.get_torch_device()
     masks, _, _ = predictor.predict_torch(
-        point_coords=None,
-        point_labels=None,
+        point_coords=point_coords,
+        point_labels=torch.tensor([1 for _ in point_coords]),
         boxes=transformed_boxes.to(sam_device),
         multimask_output=False)
     masks = masks.permute(1, 0, 2, 3).cpu().numpy()
@@ -296,6 +298,7 @@ class GroundingDinoSAMSegment:
                 "grounding_dino_model": ('GROUNDING_DINO_MODEL', {}),
                 "image": ('IMAGE', {}),
                 "prompt": ("STRING", {}),
+                "points": ("STRING", {}),
                 "threshold": ("FLOAT", {
                     "default": 0.3,
                     "min": 0,
@@ -308,10 +311,11 @@ class GroundingDinoSAMSegment:
     FUNCTION = "main"
     RETURN_TYPES = ("IMAGE", "MASK")
 
-    def main(self, grounding_dino_model, sam_model, image, prompt, threshold):
+    def main(self, grounding_dino_model, sam_model, image, points, prompt, threshold):
         res_images = []
         res_masks = []
-        for item in image:
+        
+        for item, point_item in zip(image, points):
             item = Image.fromarray(
                 np.clip(255. * item.cpu().numpy(), 0, 255).astype(np.uint8)).convert('RGBA')
             boxes = groundingdino_predict(
@@ -322,10 +326,13 @@ class GroundingDinoSAMSegment:
             )
             if boxes.shape[0] == 0:
                 break
+            width, height = item.size
+            point_coords = [[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in point_item.split(',')]
             (images, masks) = sam_segment(
                 sam_model,
                 item,
-                boxes
+                boxes,
+                torch.tensor(point_coords)
             )
             res_images.extend(images)
             res_masks.extend(masks)
