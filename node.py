@@ -7,7 +7,6 @@ sys.path.append(
 import copy
 import torch
 import numpy as np
-from typing import List, Tuple
 from PIL import Image
 import logging
 from torch.hub import download_url_to_file
@@ -23,7 +22,7 @@ from local_groundingdino.models import build_model as local_groundingdino_build_
 import glob
 import folder_paths
 
-logger = logging.getLogger('comfyui_segment_anything')
+logger = logging.getLogger('comfyui_segment_anything_plus')
 
 sam_model_dir_name = "sams"
 sam_model_list = {
