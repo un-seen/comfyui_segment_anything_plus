@@ -247,9 +247,6 @@ def sam_segment(
     sam_device = comfy.model_management.get_torch_device()
     point_coords_pt=torch.from_numpy(point_coords).to(sam_device)
     point_labels_pt=torch.from_numpy(point_labels).to(sam_device)
-    print(f"Shape of transformed_boxes: {transformed_boxes.shape}")
-    print(f"Shape of point_coords: {point_coords_pt.shape}")
-    print(f"Shape of point_labels: {point_labels_pt.shape}")
     masks, _, _ = predictor.predict_torch(
         point_coords=point_coords_pt,
         point_labels=point_labels_pt,
