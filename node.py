@@ -244,9 +244,11 @@ def sam_segment(
     image_np_rgb = image_np[..., :3]
     predictor.set_image(image_np_rgb)
     transformed_boxes = predictor.transform.apply_boxes_torch(boxes, image_np.shape[:2])
+    # First Dimension of Transformed Boxes
+    batch_size = transformed_boxes.shape[0]
     sam_device = comfy.model_management.get_torch_device()
-    point_coords_pt=torch.from_numpy(point_coords).to(sam_device)
-    point_labels_pt=torch.from_numpy(point_labels).to(sam_device)
+    point_coords_pt=torch.from_numpy([point_coords for p in range(batch_size)]).to(sam_device)
+    point_labels_pt=torch.from_numpy([point_labels for p in range(batch_size)]).to(sam_device)
     masks, _, _ = predictor.predict_torch(
         point_coords=point_coords_pt,
         point_labels=point_labels_pt,
@@ -332,8 +334,8 @@ class GroundingDinoSAMSegment:
                 point_coords = None
                 point_labels = None
             else:
-                point_coords = np.array([[[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in points.split(',')]])
-                point_labels = np.array([[1 for _ in point_coords]]) if point_coords is not None else None
+                point_coords = np.array([[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in points.split(',')])
+                point_labels = np.array([1 for _ in point_coords]) if point_coords is not None else None
             (images, masks) = sam_segment(
                 sam_model,
                 item,
