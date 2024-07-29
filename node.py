@@ -246,6 +246,9 @@ def sam_segment(
     transformed_boxes = predictor.transform.apply_boxes_torch(
         boxes, image_np.shape[:2])
     sam_device = comfy.model_management.get_torch_device()
+    print(f"Shape of transformed_boxes: {transformed_boxes.shape}")
+    print(f"Shape of point_coords: {point_coords.shape}")
+    print(f"Shape of point_labels: {point_labels.shape}")
     masks, _, _ = predictor.predict_torch(
         point_coords=torch.from_numpy(point_coords).to(sam_device),
         point_labels=torch.from_numpy(point_labels).to(sam_device),
@@ -331,7 +334,7 @@ class GroundingDinoSAMSegment:
                 point_coords = None
                 point_labels = None
             else:
-                point_coords = np.array([[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in points.split(',')])
+                point_coords = np.array([[[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in points.split(',')]])
                 point_labels = np.array([1 for _ in point_coords]) if point_coords is not None else None
             (images, masks) = sam_segment(
                 sam_model,
