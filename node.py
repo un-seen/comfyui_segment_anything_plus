@@ -230,8 +230,8 @@ def sam_segment(
     sam_model,
     image,
     boxes,
-    point_coords: torch.Tensor,
-    point_labels: torch.Tensor
+    point_coords: np.ndarray,
+    point_labels: np.ndarray
 ):
     if boxes.shape[0] == 0:
         return None
@@ -247,8 +247,8 @@ def sam_segment(
         boxes, image_np.shape[:2])
     sam_device = comfy.model_management.get_torch_device()
     masks, _, _ = predictor.predict_torch(
-        point_coords=point_coords,
-        point_labels=point_labels,
+        point_coords=torch.from_numpy(point_coords).to(sam_device),
+        point_labels=torch.from_numpy(point_labels).to(sam_device),
         boxes=transformed_boxes.to(sam_device),
         multimask_output=False)
     masks = masks.permute(1, 0, 2, 3).cpu().numpy()
@@ -331,8 +331,8 @@ class GroundingDinoSAMSegment:
                 point_coords = None
                 point_labels = None
             else:
-                point_coords = torch.tensor([[[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in points.split(',')]], device="cuda")
-                point_labels = torch.tensor([[1 for _ in point_coords]], device="cuda") if point_coords is not None else None
+                point_coords = np.array([[float(p.split("+")[0])*width, float(p.split("+")[1])*height]  for p in points.split(',')])
+                point_labels = np.array([1 for _ in point_coords]) if point_coords is not None else None
             (images, masks) = sam_segment(
                 sam_model,
                 item,
