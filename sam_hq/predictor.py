@@ -108,12 +108,10 @@ class SamPredictorHQ(SamPredictor):
         if point_coords is not None:
             points = (point_coords, point_labels)
             print(f"Shape of box: {boxes.shape}")
-            print(f"Shape of mask_input: {mask_input.shape}")
             print(f"Shape of points: {point_coords.shape}")
             print(f"Shape of point_labels: {point_labels.shape}")
         else:
             print(f"Shape of box: {boxes.shape}")
-            print(f"Shape of mask_input: {mask_input.shape}")
             points = None
 
         # Embed prompts
