@@ -13,7 +13,7 @@ from torch.hub import download_url_to_file
 from urllib.parse import urlparse
 import folder_paths
 import comfy.model_management
-from typing import List
+from typing import List, Optional
 from sam_hq.predictor import SamPredictorHQ
 from sam_hq.build_sam_hq import sam_model_registry
 from local_groundingdino.datasets import transforms as T
@@ -231,8 +231,8 @@ def sam_segment(
     sam_model,
     image,
     boxes,
-    point_coords: List[List[float]],
-    point_labels: List[int]
+    point_coords: Optional[List[List[float]]],
+    point_labels: Optional[List[int]]
 ):
     if boxes.shape[0] == 0:
         return None
@@ -248,8 +248,11 @@ def sam_segment(
     # First Dimension of Transformed Boxes
     batch_size = transformed_boxes.shape[0]
     sam_device = comfy.model_management.get_torch_device()
-    point_coords_pt=torch.from_numpy(np.array([point_coords for p in range(batch_size)])).to(sam_device)
-    point_labels_pt=torch.from_numpy(np.array([point_labels for p in range(batch_size)])).to(sam_device)
+    point_coords_pt = None
+    point_labels_pt = None    
+    if point_coords is not None:
+        point_coords_pt=torch.from_numpy(np.array([point_coords for p in range(batch_size)])).to(sam_device)
+        point_labels_pt=torch.from_numpy(np.array([point_labels for p in range(batch_size)])).to(sam_device)
     masks, _, _ = predictor.predict_torch(
         point_coords=point_coords_pt,
         point_labels=point_labels_pt,
