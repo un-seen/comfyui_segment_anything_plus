@@ -1,0 +1,15 @@
+[project]
+name = "comfyui_segment_anything_plus"
+description = "This project is a ComfyUI version of [a/sd-webui-segment-anything](https://github.com/continue-revolution/sd-webui-segment-anything). At present, only the most core functionalities have been implemented. I would like to express my gratitude to [a/continue-revolution](https://github.com/continue-revolution) for their preceding work on which this is based."
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["segment_anything", "timm", "addict", "yapf"]
+
+[project.urls]
+Repository = "https://github.com/un-seen/comfyui_segment_anything_plus"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "comfyui_segment_anything_plus"
+Icon = ""
